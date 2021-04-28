@@ -1,5 +1,5 @@
-import React, {Component} from "react";
-import {Form, Col, FormCheck} from "react-bootstrap";
+import React from "react";
+import {Form, Row, Col, FormCheck, FormControl} from "react-bootstrap";
 import {GRAPH_MODE, InputRange} from "./GraphView";
 
 
@@ -9,6 +9,7 @@ interface ParamsViewProps
     doublingRange: InputRange;
     mode: string;
     doShowRef: boolean;
+    doShowLegend: boolean;
 
     onModeChange(mode: string): void;
 
@@ -19,6 +20,7 @@ interface ParamsViewProps
     onDoublingDaysChange(doublingDays: number): void;
 
     onShowRefChange(doShowRef: boolean): void;
+    onShowLegendChange(doShowRef: boolean): void;
 }
 
 export function ParamsView(props: ParamsViewProps)
@@ -53,11 +55,17 @@ export function ParamsView(props: ParamsViewProps)
         const val = e.target.checked;
         props.onShowRefChange(val);
     }
+    const handleShowLegendChange = (e: any) =>
+    {
+        const val = e.target.checked;
+        props.onShowLegendChange(val);
+    }
 
     const modeForm = (
         <Form.Group id="form.ControlMode">
             <Form.Label>Select mode:</Form.Label>
             <Form.Control as="select"
+                          size="sm"
                           onChange={handleModeChange}>
                 <option value={GRAPH_MODE.newVSTotalConfirmed}>
                     New/Total Cases
@@ -87,6 +95,7 @@ export function ParamsView(props: ParamsViewProps)
         <Form.Group id="form.ControlScale">
             <Form.Label>Select scale:</Form.Label>
             <Form.Control as="select"
+                          size="sm"
                           onChange={handleScaleChange}>
                 <option value='log'>Logarithmic</option>
                 <option value='lin'>Linear</option>
@@ -95,34 +104,33 @@ export function ParamsView(props: ParamsViewProps)
     );
 
     const daysForm = (
-        <Form.Group id="form.ControlDays">
-
-            <Form.Label>
-                {props.range.val > 1
-                    ? `Data smoothed over ${props.range.val} days`
-                    : 'No smoothing'}
-            </Form.Label>
-            <Form.Control type="range"
-                          onChange={handleDaysChange}
-                          min={props.range.min}
-                          max={props.range.max}
-                          step={1}
-                          value={props.range.val}
-            />
-        </Form.Group>
+        <div id="form.ControlDays">
+            Smooth data over <span>
+                <input className="input-small-number"
+                       type="number"
+                       onChange={handleDaysChange}
+                       min={props.range.min}
+                       max={props.range.max}
+                       step={1}
+                       value={props.range.val}/>
+            </span> {props.range.val > 1 ? 'days' : 'day'}
+        </div>
     );
+
+    const label = (
+        <label htmlFor="double-check">
+            Show {props.doublingRange.val} {props.doublingRange.val > 1 ?
+            'days' : 'day'} doubling time
+        </label>);
     const doublingDaysForm = (
-        <Form.Group id="form.ControlDoublingDays">
-            <Form.Row>
-                <FormCheck
-                    type='checkbox'
-                    checked={props.doShowRef}
-                    onChange={handleShowRefChange}/>
-                <Form.Label>
-                    Reference of {props.doublingRange.val} doubling
-                    {props.doublingRange.val > 1 ? ' days' : ' day'}
-                </Form.Label>
-            </Form.Row>
+        <div id="form.ControlDoublingDays">
+            <FormCheck
+                id="double-check"
+                type='checkbox'
+                label={label}
+                checked={props.doShowRef}
+                onChange={handleShowRefChange}
+            />
             <Form.Control type="range"
                           onChange={handleDoublingDaysChange}
                           min={props.doublingRange.min}
@@ -130,20 +138,37 @@ export function ParamsView(props: ParamsViewProps)
                           step={1}
                           value={props.doublingRange.val}
             />
-        </Form.Group>
+        </div>
     );
+
+
+    const showLegend = (<FormCheck
+        id="legend"
+        type='checkbox'
+        label='Show legend'
+        checked={props.doShowLegend}
+        onChange={handleShowLegendChange}
+    />);
 
     const showDoublingDays = [GRAPH_MODE.newVSTotalConfirmed]
         .includes(props.mode);
+
     return (
         <div className="params-view">
             <Form>
-                <Form.Row>
+                <Row>
                     <Col>{modeForm}</Col>
                     <Col>{scaleForm}</Col>
-                    <Col>{daysForm}</Col>
-                    <Col>{showDoublingDays && doublingDaysForm}</Col>
-                </Form.Row>
+                    <Col >
+                        <Form.Row>{daysForm}</Form.Row>
+                        <Form.Row>{showLegend}</Form.Row>
+                    </Col>
+                    {showDoublingDays &&
+                    <Col>
+                        {doublingDaysForm}
+                    </Col>
+                    }
+                </Row>
             </Form>
         </div>
     );

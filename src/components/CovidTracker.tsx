@@ -51,6 +51,13 @@ export class CovidTracker
         this.setState({});
     };
 
+    onSelectAll = (select: boolean) =>
+    {
+        const {dts} = this.state;
+        dts.data.forEach( ts => ts.active = select);
+        this.setState({});
+    }
+
     // Loads time series once, on initialisation
     private loadTimeSeries(url: string): Promise<unknown[]>
     {
@@ -65,7 +72,6 @@ export class CovidTracker
     {
         // For each time series, we need to download the data and then
         // compile it into a TimeSeries with one Entry per timestamp
-
         Promise.all([
             this.loadTimeSeries(TS_CONFIRMED),
             this.loadTimeSeries(TS_RECOVERED),
@@ -85,15 +91,16 @@ export class CovidTracker
     render(): JSX.Element
     {
         return (
-            <Container fluid className='body-container'>
+            <Container fluid className='container-app'>
                 <Row>
-                    <Col>
+                    <Col className='col-graph-view'>
                         <GraphView dts={this.state.dts}/>
                     </Col>
-                    <Col sm={2} className='country-filter'>
+                    <Col sm={2} className='col-country'>
                         <CountryFilter
                             series={this.state.dts}
                             onToggleActiveTS={this.onToggleActiveTS}
+                            onSelectAll={this.onSelectAll}
                         />
                     </Col>
                 </Row>

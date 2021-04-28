@@ -1,13 +1,19 @@
 import React, {Component} from "react";
 import {DatedTimeSeries, TimeSeries} from "../models/timeSeries";
 import {CheckboxTS} from "./CheckboxTS";
-import {ListGroup} from "react-bootstrap";
+import {
+    Button,
+    Col,
+    ListGroup,
+    Row
+} from "react-bootstrap";
 import {SearchBar} from "./SearchBox";
 
 interface CountryFilterProps
 {
     series: DatedTimeSeries;
     onToggleActiveTS: (series: TimeSeries) => void;
+    onSelectAll: (select: boolean) => void;
 }
 
 interface CountryFilterState
@@ -30,7 +36,6 @@ export class CountryFilter
 
     onClick = (ts: TimeSeries) =>
     {
-        console.log('control panel onClick')
         this.props.onToggleActiveTS(ts);
     }
 
@@ -38,6 +43,11 @@ export class CountryFilter
     {
         console.log('Country Filter', keyword);
         this.setState({mKeyword: keyword});
+    }
+
+    onSelectAll = (select: boolean) =>
+    {
+        this.props.onSelectAll(select);
     }
 
     render(): JSX.Element
@@ -62,12 +72,27 @@ export class CountryFilter
 
         return (
             <div>
-                <div className='country-filter-header'>
-                    <h3>Countries</h3>
-                    <SearchBar keyword={mKeyword}
-                               setKeyword={this.onKeywordChange}/>
+                <div className='head-country centered'>
+                    <Col>
+                        <Row className={'justify-content-center'}>
+                            <SearchBar keyword={mKeyword}
+                                       setKeyword={this.onKeywordChange}/>
+                        </Row>
+                        <Row className={'justify-content-center'}>
+                            <Button className="btn-sm country-button"
+                                    onClick={() => this.onSelectAll(true)}
+                                    variant="success">
+                                Select all
+                            </Button>
+                            <Button className="btn-sm country-button"
+                                    onClick={() => this.onSelectAll(false)}
+                                    variant="danger">
+                                Clear all
+                            </Button>
+                        </Row>
+                    </Col>
                 </div>
-                <ListGroup className='scrollable-panel-lg'>
+                <ListGroup className='body-country'>
                     {sortedData.map(ts => (
                         (ts.active ||
                             ts.name.toLowerCase()

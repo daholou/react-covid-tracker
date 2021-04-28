@@ -15,7 +15,7 @@ interface CheckboxTSProps
 // - On click, the parent is notified that it needs to switch the active
 // status of the clicked time series. The parent will then call setState,
 // which will re-render this component
-export function CheckboxTS(props: CheckboxTSProps) : JSX.Element
+export function CheckboxTS(props: CheckboxTSProps): JSX.Element
 {
     const handleChange = () =>
     {
@@ -27,8 +27,8 @@ export function CheckboxTS(props: CheckboxTSProps) : JSX.Element
                         action
                         variant={props.series.active ? 'success' : ""}
                         className="unselectable-text">
-            <MiniCheckbox isChecked={props.series.active}/>
-            {props.series.name}
+            <MiniCheckbox isChecked={props.series.active}
+                          name={props.series.name}/>
         </ListGroup.Item>
     );
 
@@ -66,14 +66,18 @@ export function CheckboxTS(props: CheckboxTSProps) : JSX.Element
 
 interface MiniCheckboxProps
 {
+    name: string;
     isChecked: boolean;
 }
 
-function MiniCheckbox(props : MiniCheckboxProps): JSX.Element
+function MiniCheckbox(props: MiniCheckboxProps): JSX.Element
 {
     return <FormCheck
         type='checkbox'
+        label={props.name}
         checked={props.isChecked}
-        onChange={() => {}}
+        onChange={() =>
+        {
+        }}
     />;
 }

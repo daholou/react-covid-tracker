@@ -3,10 +3,10 @@ import React, {Component} from "react";
 import {DatedTimeSeries, Entry, TimeSeries} from "../models/timeSeries";
 import {AxisType, Data} from "plotly.js";
 import {ParamsView} from "./ParamsView";
-import {Row} from "react-bootstrap";
+import {Alert, Row} from "react-bootstrap";
 
-const clamp = (x: number, min: number, max: number) =>
-    Math.max(min, Math.min(x, max));
+// const clamp = (x: number, min: number, max: number) =>
+//     Math.max(min, Math.min(x, max));
 
 export const GRAPH_MODE = Object.freeze({
     totalConfirmedVSTime: "total cases vs t",
@@ -28,13 +28,13 @@ export interface InputRange
 function format(d: Date): string
 {
     // YYYY-MM-DD
-    return d.toISOString().slice(0,10);
+    return d.toISOString().slice(0, 10);
 }
 
-function formatHuman(d:Date): string
+function formatHuman(d: Date): string
 {
     const tmp = d.toISOString();
-    return `${tmp.slice(8,10)}/${tmp.slice(5,7)}/${tmp.slice(0,4)}`;
+    return `${tmp.slice(8, 10)}/${tmp.slice(5, 7)}/${tmp.slice(0, 4)}`;
 }
 
 interface GraphViewProps
@@ -52,6 +52,7 @@ interface GraphViewState
     // true for log plots (otherwise linear scale)
     isLogPlot: boolean;
     doShowRef: boolean;
+    doShowLegend: boolean;
 }
 
 interface MinMax
@@ -88,6 +89,7 @@ export class GraphView
             doublingDays: 14,
             isLogPlot: true,
             doShowRef: true,
+            doShowLegend: true,
         }
     }
 
@@ -130,6 +132,7 @@ export class GraphView
         const res: Data[] = [];
         let xMin: number = Number.MAX_VALUE;
         let xMax: number = Number.MIN_VALUE;
+        const {doShowRef, mode, doShowLegend} = this.state;
         for (const ts of activeTS)
         {
             const xDataVal = this.xData(ts);
@@ -145,14 +148,14 @@ export class GraphView
                 y: this.yData(ts),
                 text: dates,
                 hovertemplate: this.template(),
-                showlegend: true,
+                showlegend: doShowLegend,
                 line: {color: ts.hexColor}
             };
 
             res.push(trace);
         }
 
-        const {doShowRef, mode} = this.state;
+
         if (doShowRef && mode === GRAPH_MODE.newVSTotalConfirmed)
         {
             const {doublingDays} = this.state;
@@ -270,7 +273,12 @@ export class GraphView
             doShowRef: newShowRef
         });
     };
-
+    onShowLegendChange = (newShowLegend: boolean) =>
+    {
+        this.setState({
+            doShowLegend: newShowLegend
+        });
+    };
 
     private get xAxisTitle(): string
     {
@@ -372,10 +380,10 @@ export class GraphView
         //     .forEach(ts=>{console.log("France: ", ts.hexColor)});
         const dates = this.props.dts.time;
         let title = 'No data provided';
-        if(dates.length >= 1)
+        if (dates.length >= 1)
         {
             const start = formatHuman(dates[0]);
-            const end = formatHuman(dates[dates.length-1]);
+            const end = formatHuman(dates[dates.length - 1]);
             title = `Trajectory of World COVID-19 (${mode}) from ${start} to ${end}`;
         }
 
@@ -425,13 +433,28 @@ export class GraphView
 
         const config = {responsive: true}
         const data: Data[] = this.getData();
-        const plot = data.length > 0 ?
-            (<Plot className={'graph'}
-                   data={data}
-                   layout={layout}
-                   config={config}
-                   useResizeHandler={true}/>)
-            : (<p>Please select a country</p>
+        const plot = data.length > 0
+            ? (<Plot className={'graph'}
+                     data={data}
+                     layout={layout}
+                     config={config}
+                     useResizeHandler={true}/>)
+            : (<Alert variant="warning">
+                    <Alert.Heading>Oops, there is no data to display !</Alert.Heading>
+                    <hr/>
+                    <p>
+                        Please select at least one country in the right panel
+                        to display a plot.
+                    </p>
+                    <p className="mb-0">
+                        If that doesn't work, try hitting your F5 key to
+                        refresh the page.
+                    </p>
+                    <p className="mb-0">
+                        If that doesn't work, maybe the data
+                        cannot be retrieved, or maybe you've encountered a bug.
+                    </p>
+                </Alert>
             );
 
         const {numberOfDays, doublingDays} = this.state;
@@ -439,20 +462,22 @@ export class GraphView
         const doublingRange: InputRange = {min: 1, val: doublingDays, max: 100};
         return (
             <div>
-                <Row className="rest">
+                <Row className="body-graph">
                     <div className="graph-view">
                         {plot}
                     </div>
                 </Row>
-                <Row className="foot">
+                <Row className="footer-graph">
                     <ParamsView range={range}
                                 doublingRange={doublingRange}
                                 mode={mode}
                                 doShowRef={this.state.doShowRef}
+                                doShowLegend={this.state.doShowLegend}
                                 onModeChange={this.onModeChange}
                                 onScaleChange={this.onScaleChange}
                                 onDaysChange={this.onDaysChange}
                                 onShowRefChange={this.onShowRefChange}
+                                onShowLegendChange={this.onShowLegendChange}
                                 onDoublingDaysChange={this.onDoublingDaysChange}
                     />
                 </Row>
