@@ -1,5 +1,5 @@
 import React from "react";
-import {Form, Row, Col, FormCheck, FormControl} from "react-bootstrap";
+import {Form, Row, Col, FormCheck} from "react-bootstrap";
 import {GRAPH_MODE, InputRange} from "./GraphView";
 
 
