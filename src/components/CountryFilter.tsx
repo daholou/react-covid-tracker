@@ -41,7 +41,6 @@ export class CountryFilter
 
     onKeywordChange = (keyword: string) =>
     {
-        console.log('Country Filter', keyword);
         this.setState({mKeyword: keyword});
     }
 

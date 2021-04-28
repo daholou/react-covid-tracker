@@ -20,6 +20,7 @@ interface ParamsViewProps
     onDoublingDaysChange(doublingDays: number): void;
 
     onShowRefChange(doShowRef: boolean): void;
+
     onShowLegendChange(doShowRef: boolean): void;
 }
 
@@ -112,7 +113,12 @@ export function ParamsView(props: ParamsViewProps)
                        min={props.range.min}
                        max={props.range.max}
                        step={1}
-                       value={props.range.val}/>
+                       value={props.range.val}
+                       onKeyDown={(e) =>
+                       {
+                           e.preventDefault();
+                           return false;
+                       }}/>
             </span> {props.range.val > 1 ? 'days' : 'day'}
         </div>
     );
@@ -159,7 +165,7 @@ export function ParamsView(props: ParamsViewProps)
                 <Row>
                     <Col>{modeForm}</Col>
                     <Col>{scaleForm}</Col>
-                    <Col >
+                    <Col>
                         <Form.Row>{daysForm}</Form.Row>
                         <Form.Row>{showLegend}</Form.Row>
                     </Col>
